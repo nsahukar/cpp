@@ -93,4 +93,5 @@ int main()
 
 		EndDrawing();
 	}
+	CloseWindow();
 }
