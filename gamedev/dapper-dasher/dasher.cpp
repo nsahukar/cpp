@@ -7,23 +7,33 @@ int main() {
 	// initialize the window
 	InitWindow(windowWidth, windowHeight, "Dapper Dasher!");
 
-	// rectangle dimensions
-	const int rectWidth = 50;
-	const int rectHeight = 80;
-	// rectangle ground position
-	const int rectGroundPosY{windowHeight - rectHeight};
-	// rectangle jump velocity
-	const int rectJumpVel = -20;
-	// rectangle position
-	int rectPosY{rectGroundPosY};
-	// var to check if rectangle is in air
-	bool rectIsInAir{};
+	// defining 'scarfy' texture
+	Texture2D scarfy = LoadTexture("textures/scarfy.png");
+	Rectangle scarfyRec;
+	scarfyRec.width = scarfy.width/6;
+	scarfyRec.height = scarfy.height;
+	scarfyRec.x = 0;
+	scarfyRec.y = 0;
+	Vector2 scarfyPos;
+	scarfyPos.x = windowWidth/2 - scarfyRec.width/2;
+	scarfyPos.y = windowHeight - scarfyRec.height;
+	// scarfy ground position
+	const int scarfyGroundPosY = windowHeight - scarfyRec.height;
+	// sacrfy jump velocity (pixels/sec)
+	const int scarfyJumpVel = -600;
+	// var to check if scarfy is in air
+	bool scarfyIsInAir;
+	// scarfy velocity (pixels/frame)
+	int scarfyVelocity = 0;
+	// scarfy texture animation frame
+	int scarfyRecFrame = 0;
+	// update time for scarfy animation frame
+	const float scarfyUpdateTime = 1.0 / 10.0;
+	// running time for scarfy animation frame
+	float scarfyRunningTime = 0;
 
-	// rectangle velocity (pixels/frame)
-	int rectVelocity{0};
-
-	// acceleration due to gravity (pixels/frame)/frame
-	const int gravity{1};
+	// acceleration due to gravity (pixels/sec)/sec
+	const int gravity = 1000;
 
 
 	SetTargetFPS(60);
@@ -32,28 +42,47 @@ int main() {
 		BeginDrawing();
 		ClearBackground(WHITE);
 
-		// ground check for rectangle,
-		if (rectPosY >= rectGroundPosY) {
-			// setting velocity to zero, rectangle is on the ground
-			rectVelocity = 0;
-			rectIsInAir = false;
+		// delta time (time since last frame)
+		const float dT = GetFrameTime();
+
+		// ground check for sacrfy,
+		if (scarfyPos.y >= scarfyGroundPosY) {
+			// setting velocity to zero, sacrfy is on the ground
+			scarfyVelocity = 0;
+			scarfyIsInAir = false;
 		} else {
-			// applying gravity, rectangle is in the air
-			rectVelocity += gravity;
-			rectIsInAir = true;
+			// applying gravity, sacrfy is in the air
+			scarfyVelocity += gravity * dT;
+			scarfyIsInAir = true;
 		}
-		// make rectangle jump on spacebar press,
+		// make scarfy jump on spacebar press,
 		// only when it is on the ground (avoid air jumping)
-		if (IsKeyPressed(KEY_SPACE) && !rectIsInAir) {
-			rectVelocity += rectJumpVel;
+		if (IsKeyPressed(KEY_SPACE) && !scarfyIsInAir) {
+			scarfyVelocity += scarfyJumpVel;
 		}
-		// move rectangle with given velocity
-		rectPosY += rectVelocity;
-		// draw rectangle
-		DrawRectangle(windowWidth/2, rectPosY, rectWidth, rectHeight, BLUE);
+		// move scarfy with given velocity
+		scarfyPos.y += scarfyVelocity * dT;
+
+		// animating scarfy by updating animation frame
+		scarfyRunningTime += dT;
+		if (scarfyRunningTime >= scarfyUpdateTime) {
+			// reset scarfy running time
+			scarfyRunningTime = 0.0;
+			// jump to next frame in sprite
+			scarfyRec.x = scarfyRecFrame * scarfyRec.width;
+			scarfyRecFrame++;
+			// reset frame to zero if it crosses its maximum
+			if (scarfyRecFrame > 5) {
+				scarfyRecFrame = 0;
+			}
+		}
+
+		// draw 2D texture scarfy
+		DrawTextureRec(scarfy, scarfyRec, scarfyPos, WHITE);
 
 		// stop drawing
 		EndDrawing();
 	}
+	UnloadTexture(scarfy);
 	CloseWindow();
 }
