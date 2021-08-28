@@ -5,8 +5,127 @@
 
 class Character {
 	public:
+		Character(Texture2D idleTexture, Texture2D runTexture, int frames, int windowWidth, int windowHeight, float scale) {
+			idle = idleTexture;
+			run = runTexture;
+			texture = idle;
+			setSource(frames);
+			setDestination(windowWidth, windowHeight, scale);
+		}
+		void setSpeed(float val);
+		Vector2 getPosition();
+		void tick(float dT, float updateTime);
+		void draw();
+		void unloadTextures();
 	private:
+		Texture2D idle;
+		Texture2D run;
+		Texture2D texture;
+		Rectangle source{};
+		Rectangle destination{};
+		Vector2 position{};
+		int frame{};
+		int maxFrame{};
+		float runningTime{};
+		float speed{4.f};
+
+		// void setTexture(int type);
+		void setIdle(Texture2D idleTexture);
+		void setRun(Texture2D runTexture);
+		void setSource(int frames);
+		void setDestination(int windowWidth, int windowHeight, float scale);
+		void setDirection(float leftRight);
+		void move();
+		void animate(float dT, float updateTime);
 };
+
+void Character::setIdle(Texture2D idleTexture) {
+	idle = idleTexture;
+}
+
+void Character::setRun(Texture2D runTexture) {
+	run = runTexture;
+}
+
+void Character::setSource(int frames) {
+	maxFrame = frames;
+	source.width = (float)texture.width/(float)maxFrame;
+	source.height = (float)texture.height;
+}
+
+void Character::setDestination(int windowWidth, int windowHeight, float scale) {
+	destination.x = windowWidth/2.0f - scale * (0.5f * source.width);
+	destination.y = windowHeight/2.0f - scale * (0.5f * source.height);
+	destination.width = scale * source.width;
+	destination.height = scale * source.height;
+}
+
+void Character::setDirection(float leftRight) {
+	source.width = leftRight * abs(source.width);
+}
+
+void Character::setSpeed(float val) {
+	speed = val;
+}
+
+Vector2 Character::getPosition() {
+	return position;
+}
+
+void Character::move() {
+	// movement with keys
+	Vector2 direction{};
+	if (IsKeyDown(KEY_A)) direction.x -= 1.0;
+	if (IsKeyDown(KEY_D)) direction.x += 1.0;
+	if (IsKeyDown(KEY_W)) direction.y -= 1.0;
+	if (IsKeyDown(KEY_S)) direction.y += 1.0;
+	
+	// configuring vars based on direction
+	if (Vector2Length(direction) != 0.f) {
+		// moving character
+		position = Vector2Add(position, Vector2Scale(Vector2Normalize(direction), speed));
+		// change kight's face direction based on direction
+		// +1 -> right
+		// -1 -> left
+		if (direction.x < 0.f) {
+			setDirection(-1.f);
+		} else {
+			setDirection(1.f);
+		}
+		// set knight to run
+		texture = run;
+	} else {
+		// set knight to idle
+		texture = idle;
+	}
+}
+
+void Character::animate(float dT, float updateTime) {
+	runningTime += dT;
+	if (runningTime >= updateTime) {
+		// reset running time
+		runningTime = 0.f;
+		// jump to next frame in sprite
+		frame++;
+		if (frame > maxFrame) frame = 0;
+		source.x = frame * source.width;
+	}
+}
+
+void Character::tick(float dT, float updateTime) {
+	move();
+	animate(dT, updateTime);
+}
+
+void Character::draw() {
+	DrawTexturePro(texture, source, destination, Vector2{}, 0.0f, WHITE);
+}
+
+void Character::unloadTextures() {
+	UnloadTexture(idle);
+	UnloadTexture(run);
+	UnloadTexture(texture);
+}
 
 int main() {
 	// window dimensions
@@ -23,37 +142,16 @@ int main() {
 	Texture2D map = LoadTexture("nature_tileset/OpenWorldMap.png");
 	// map position
 	Vector2 mapPos{};
-	// map speed
-	const float mapVel = 4.0;
 
 	// defining 'knight' texture
-	Texture2D knightIdle = LoadTexture("characters/knight_idle_spritesheet.png");
-	Texture2D knightRun = LoadTexture("characters/knight_run_spritesheet.png");
-	Texture2D knight = knightIdle;
-	// knight source
-	Rectangle knightSrc{
-		0.0f,
-		0.0f,
-		(float)knight.width/6.0f,
-		(float)knight.height
+	Character knight{
+		LoadTexture("characters/knight_idle_spritesheet.png"),
+		LoadTexture("characters/knight_run_spritesheet.png"),
+		6,
+		windowWidth,
+		windowHeight,
+		scale
 	};
-	// knight destination
-	Rectangle knightDest{
-		windowWidth/2.0f - scale * (0.5f * knightSrc.width),
-		windowHeight/2.0f - scale * (0.5f * knightSrc.height),
-		scale * knightSrc.width,
-		scale * knightSrc.height
-	};
-	// knight position
-	Vector2 knightPos{
-		knightDest.x,
-		knightDest.y
-	};
-	// knight animation vars
-	int knightFrame = 0;
-	const int knightMaxFrame = 6;
-	float knightRunningTime{};
-	const float knightUpdateTime = 1.f/12.f;
 
 
 	SetTargetFPS(60);
@@ -65,55 +163,21 @@ int main() {
 		BeginDrawing();
 		ClearBackground(WHITE);
 
-		// movement with keys
-		Vector2 direction{};
-		if (IsKeyDown(KEY_A)) direction.x -= 1.0;
-		if (IsKeyDown(KEY_D)) direction.x += 1.0;
-		if (IsKeyDown(KEY_W)) direction.y -= 1.0;
-		if (IsKeyDown(KEY_S)) direction.y += 1.0;
-		
-		// configuring vars based on direction
-		if (Vector2Length(direction) != 0.f) {
-			// set knight to run
-			knight = knightRun;
-			// moving map
-			mapPos = Vector2Subtract(mapPos, Vector2Scale(Vector2Normalize(direction), mapVel));
-			// change kight's face direction based on direction
-			// +1 -> right
-			// -1 -> left
-			if (direction.x < 0.f) {
-				knightSrc.width = -1.f * abs(knightSrc.width);
-			} else {
-				knightSrc.width = 1.f * abs(knightSrc.width);
-			}
-		} else {
-			// set knight to idle
-			knight = knightIdle;
-		}
+		// make the knight tick
+		knight.tick(dT, 1.f/12.f);
 
 		// draw map
+		mapPos = Vector2Scale(knight.getPosition(), -1.f);
 		DrawTextureEx(map, mapPos, 0.0f, scale, WHITE);
 
-		// animate knight
-		knightRunningTime += dT;
-		if (knightRunningTime >= knightUpdateTime) {
-			// reset running time
-			knightRunningTime = 0.f;
-			// jump to next frame in sprite
-			knightFrame++;
-			if (knightFrame > knightMaxFrame) knightFrame = 0;
-			knightSrc.x = knightFrame * knightSrc.width;
-		}
 		// draw knight
-		DrawTexturePro(knight, knightSrc, knightDest, Vector2{}, 0.0f, WHITE);
+		knight.draw();
 
 		// end drawing
 		EndDrawing();
 	}
 
 	UnloadTexture(map);
-	UnloadTexture(knightIdle);
-	UnloadTexture(knightRun);
-	UnloadTexture(knight);
+	knight.unloadTextures();
 	CloseWindow();
 }
