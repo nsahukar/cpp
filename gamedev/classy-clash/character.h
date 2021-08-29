@@ -8,7 +8,8 @@ class Character {
 		Vector2 getMovement();
 		void tick(float dT, float updateTime);
 		void undoMovement();
-		void unloadTextures();
+		Rectangle getCollisionRec();
+		void unload();
 	private:
 		Texture2D idle;
 		Texture2D run;

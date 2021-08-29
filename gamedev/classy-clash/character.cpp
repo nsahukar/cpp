@@ -106,7 +106,16 @@ void Character::undoMovement() {
 	movement = lastMovement;
 }
 
-void Character::unloadTextures() {
+Rectangle Character::getCollisionRec() {
+	return Rectangle{
+		destination.x,
+		destination.y,
+		destination.width,
+		destination.height
+	};
+}
+
+void Character::unload() {
 	UnloadTexture(idle);
 	UnloadTexture(run);
 	UnloadTexture(texture);

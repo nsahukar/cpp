@@ -1,6 +1,8 @@
 #include "raylib.h"
 #include "raymath.h"
+#include "prop.h"
 #include "character.h"
+
 
 int main() {
 	// window dimensions
@@ -16,6 +18,18 @@ int main() {
 	Vector2 mapPos{};
 	// drawing scale
 	const float mapScale = 4.0f;
+
+	// defining 'prop' textures
+	Prop props[2]{
+		Prop{
+			LoadTexture("nature_tileset/Rock.png"),
+			Vector2{600.f, 300.f}
+		},
+		Prop{
+			LoadTexture("nature_tileset/Log.png"),
+			Vector2{400.f, 500.f}
+		}
+	};
 
 	// defining 'knight' texture
 	Character knight{
@@ -40,11 +54,14 @@ int main() {
 		mapPos = Vector2Scale(knight.getMovement(), -1.f);
 		DrawTextureEx(map, mapPos, 0.0f, mapScale, WHITE);
 
+		// draw props
+		for (auto prop : props) prop.render(knight.getMovement());
+
 		// make the knight tick
 		knight.tick(dT, 1.f/12.f);
 
-		// checking for movement off limits (map bounds)
-		// undoing movement, if so.
+		// check for movement off limits (map bounds)
+		// undoing knight movement, if so.
 		if (knight.getMovement().x < 0.f ||
 			knight.getMovement().y < 0.f ||
 			knight.getMovement().x + windowWidth > mapScale * map.width ||
@@ -53,11 +70,20 @@ int main() {
 			knight.undoMovement();
 		}
 
+		// check for collision with props
+		// undoing knight movement, if so.
+		for (auto prop : props) {
+			if (CheckCollisionRecs(knight.getCollisionRec(), prop.getCollisionRec(knight.getMovement()))) {
+				knight.undoMovement();
+			}
+		}
+
 		// end drawing
 		EndDrawing();
 	}
 
 	UnloadTexture(map);
-	knight.unloadTextures();
+	for (auto prop : props) prop.unload();
+	knight.unload();
 	CloseWindow();
 }
