@@ -3,9 +3,10 @@
 #include "raymath.h"
 #include <cmath>
 
-Character::Character(Texture2D idleTexture, Texture2D runTexture, int frames, int windowWidth, int windowHeight) {
-	idle = idleTexture;
-	run = runTexture;
+Character::Character(Texture2D idleTexture, Texture2D runTexture, int frames, int windowWidth, int windowHeight):
+	idle(idleTexture),
+	run(runTexture)
+{
 	texture = idle;
 	setSource(frames);
 	setDestination(windowWidth, windowHeight);
@@ -25,8 +26,8 @@ void Character::setScale(float val) {
 
 void Character::setSource(int frames) {
 	maxFrame = frames;
-	source.width = (float)texture.width/(float)maxFrame;
-	source.height = (float)texture.height;
+	source.width = static_cast<float>(texture.width) / static_cast<float>(maxFrame);
+	source.height = static_cast<float>(texture.height);
 }
 
 void Character::setDestination(int windowWidth, int windowHeight) {
