@@ -2,6 +2,7 @@
 #include "raymath.h"
 #include "prop.h"
 #include "character.h"
+#include "enemy.h"
 
 
 int main() {
@@ -31,10 +32,19 @@ int main() {
 		}
 	};
 
-	// defining 'knight' texture
+	// defining character 'knight' texture
 	Character knight{
 		LoadTexture("characters/knight_idle_spritesheet.png"),
 		LoadTexture("characters/knight_run_spritesheet.png"),
+		6,
+		windowWidth,
+		windowHeight
+	};
+
+	// defining enemy 'goblin' texture
+	Enemy goblin{
+		LoadTexture("characters/goblin_idle_spritesheet.png"),
+		LoadTexture("characters/goblin_run_spritesheet.png"),
 		6,
 		windowWidth,
 		windowHeight
@@ -77,6 +87,9 @@ int main() {
 				knight.undoMovement();
 			}
 		}
+
+		// make the goblin tick
+		goblin.tick(dT, 1.f/12.f);
 
 		// end drawing
 		EndDrawing();

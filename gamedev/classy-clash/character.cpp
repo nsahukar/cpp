@@ -1,57 +1,29 @@
 #include "character.h"
-#include "raylib.h"
 #include "raymath.h"
-#include <cmath>
 
-Character::Character(Texture2D idleTexture, Texture2D runTexture, int frames, int windowWidth, int windowHeight):
-	idle(idleTexture),
-	run(runTexture)
-{
+
+/* public methods */
+
+Character::Character(Texture2D idleTexture, Texture2D runTexture, int frames, int windowWidth, int windowHeight) {
+	idle = idleTexture;
+	run = runTexture;
 	texture = idle;
+
 	setSource(frames);
 	setDestination(windowWidth, windowHeight);
 }
 
-void Character::setIdle(Texture2D idleTexture) {
-	idle = idleTexture;
-}
 
-void Character::setRun(Texture2D runTexture) {
-	run = runTexture;
-}
-
-void Character::setScale(float val) {
-	scale = val;
-}
-
-void Character::setSource(int frames) {
-	maxFrame = frames;
-	source.width = static_cast<float>(texture.width) / static_cast<float>(maxFrame);
-	source.height = static_cast<float>(texture.height);
-}
+/* protected methods */
 
 void Character::setDestination(int windowWidth, int windowHeight) {
+	BaseCharacter::setDestination(windowWidth, windowHeight);
 	destination.x = windowWidth/2.0f - scale * (0.5f * source.width);
 	destination.y = windowHeight/2.0f - scale * (0.5f * source.height);
-	destination.width = scale * source.width;
-	destination.height = scale * source.height;
-}
-
-void Character::setDirection(float leftRight) {
-	source.width = leftRight * abs(source.width);
-}
-
-void Character::setSpeed(float val) {
-	speed = val;
-}
-
-Vector2 Character::getMovement() {
-	return movement;
 }
 
 void Character::move() {
-	// save last movement
-	lastMovement = movement;
+	BaseCharacter::move();
 
 	// movement with keys
 	Vector2 direction{};
@@ -78,45 +50,4 @@ void Character::move() {
 		// set knight to idle
 		texture = idle;
 	}
-}
-
-void Character::animate(float dT, float updateTime) {
-	runningTime += dT;
-	if (runningTime >= updateTime) {
-		// reset running time
-		runningTime = 0.f;
-		// jump to next frame in sprite
-		frame++;
-		if (frame > maxFrame) frame = 0;
-		source.x = frame * source.width;
-	}
-}
-
-void Character::draw() {
-	DrawTexturePro(texture, source, destination, Vector2{}, 0.0f, WHITE);
-}
-
-void Character::tick(float dT, float updateTime) {
-	move();
-	animate(dT, updateTime);
-	draw();
-}
-
-void Character::undoMovement() {
-	movement = lastMovement;
-}
-
-Rectangle Character::getCollisionRec() {
-	return Rectangle{
-		destination.x,
-		destination.y,
-		destination.width,
-		destination.height
-	};
-}
-
-void Character::unload() {
-	UnloadTexture(idle);
-	UnloadTexture(run);
-	UnloadTexture(texture);
 }
