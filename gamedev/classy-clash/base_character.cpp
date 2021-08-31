@@ -1,11 +1,33 @@
 #include "base_character.h"
+#include "raylib.h"
 #include "raymath.h"
 #include <cmath>
 
 
 /* public methods */
 
-BaseCharacter::BaseCharacter() {
+BaseCharacter::BaseCharacter(Texture2D idleTexture, Texture2D runTexture, int frames, Vector2 position):
+	idle(idleTexture),
+	run(runTexture)
+{
+	texture = idle;
+	maxFrame = frames;
+	calcTextureDimens();
+	setPosition(position);
+	setSource();
+	setDestination();
+}
+
+BaseCharacter::BaseCharacter(Texture2D idleTexture, Texture2D runTexture, int frames, int windowWidth, int windowHeight):
+	idle(idleTexture),
+	run(runTexture)
+{
+	texture = idle;
+	maxFrame = frames;
+	calcTextureDimens();
+	setPosition(calcPosition(windowWidth, windowHeight));
+	setSource();
+	setDestination();
 }
 
 void BaseCharacter::setScale(float val) {
@@ -48,17 +70,32 @@ void BaseCharacter::unload() {
 
 /* protected methods */
 
-void BaseCharacter::setSource(int frames) {
-	maxFrame = frames;
-	source.width = static_cast<float>(texture.width) / static_cast<float>(maxFrame);
-	source.height = static_cast<float>(texture.height);
+void BaseCharacter::calcTextureDimens() {
+	textureWidth = static_cast<float>(texture.width) / static_cast<float>(maxFrame);
+	textureHeight = static_cast<float>(texture.height);
 }
 
-void BaseCharacter::setDestination(int windowWidth, int windowHeight) {
-	// destination.x = windowWidth/2.0f - scale * (0.5f * source.width);
-	// destination.y = windowHeight/2.0f - scale * (0.5f * source.height);
-	destination.width = scale * source.width;
-	destination.height = scale * source.height;
+Vector2 BaseCharacter::calcPosition(int windowWidth, int windowHeight) {
+	return Vector2{
+		windowWidth/2.0f - scale * (0.5f * textureWidth),
+		windowHeight/2.0f - scale * (0.5f * textureHeight)
+	};
+}
+
+void BaseCharacter::setPosition(Vector2 pos) {
+	position = pos;
+}
+
+void BaseCharacter::setSource() {
+	source.width = textureWidth;
+	source.height = textureHeight;
+}
+
+void BaseCharacter::setDestination() {
+	destination.width = scale * textureWidth;
+	destination.height = scale * textureHeight;
+	destination.x = position.x;
+	destination.y = position.y;
 }
 
 void BaseCharacter::setDirection(float leftRight) {

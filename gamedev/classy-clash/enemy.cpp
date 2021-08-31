@@ -1,54 +1,26 @@
 #include "enemy.h"
+#include "raylib.h"
 #include "raymath.h"
-#include <cmath>
 
 
 /* public methods */
 
-Enemy::Enemy(Texture2D idleTexture, Texture2D runTexture, int frames, int windowWidth, int windowHeight) {
-	idle = idleTexture;
-	run = runTexture;
-	texture = idle;
-
-	setSource(frames);
-	setDestination(windowWidth, windowHeight);
+Enemy::Enemy(Texture2D idleTexture, Texture2D runTexture, int frames, Vector2 pos):
+	BaseCharacter::BaseCharacter(idleTexture, runTexture, frames, pos)
+{
 }
 
+void Enemy::setTarget(Character *character) {
+	target = character;
+}
 
 /* protected methods */
-
-void Enemy::setDestination(int windowWidth, int windowHeight) {
-	BaseCharacter::setDestination(windowWidth, windowHeight);
-	// destination.x = windowWidth/2.0f - scale * (0.5f * source.width);
-	// destination.y = windowHeight/2.0f - scale * (0.5f * source.height);
-}
 
 void Enemy::move() {
 	BaseCharacter::move();
 
-	// movement with keys
-	// Vector2 direction{};
-	// if (IsKeyDown(KEY_A)) direction.x -= 1.0;
-	// if (IsKeyDown(KEY_D)) direction.x += 1.0;
-	// if (IsKeyDown(KEY_W)) direction.y -= 1.0;
-	// if (IsKeyDown(KEY_S)) direction.y += 1.0;
-	// 
-	// // configuring vars based on direction
-	// if (Vector2Length(direction) != 0.f) {
-	// 	// moving character
-	// 	movement = Vector2Add(movement, Vector2Scale(Vector2Normalize(direction), speed));
-	// 	// change kight's face direction based on direction
-	// 	// +1 -> right
-	// 	// -1 -> left
-	// 	if (direction.x < 0.f) {
-	// 		setDirection(-1.f);
-	// 	} else {
-	// 		setDirection(1.f);
-	// 	}
-	// 	// set knight to run
-	// 	texture = run;
-	// } else {
-	// 	// set knight to idle
-	// 	texture = idle;
-	// }
+	// updating the enemy screen position w.r.t target's movement
+	Vector2 screenPos = Vector2Subtract(position, target->getMovement());
+	destination.x = screenPos.x;
+	destination.y = screenPos.y;
 }

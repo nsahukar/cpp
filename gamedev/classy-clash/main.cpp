@@ -46,9 +46,10 @@ int main() {
 		LoadTexture("characters/goblin_idle_spritesheet.png"),
 		LoadTexture("characters/goblin_run_spritesheet.png"),
 		6,
-		windowWidth,
-		windowHeight
+		Vector2{}
 	};
+	// set 'knight' as goblin's target
+	goblin.setTarget(&knight);
 
 
 	SetTargetFPS(60);
@@ -98,5 +99,6 @@ int main() {
 	UnloadTexture(map);
 	for (auto prop : props) prop.unload();
 	knight.unload();
+	goblin.unload();
 	CloseWindow();
 }

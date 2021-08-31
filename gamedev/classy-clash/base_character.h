@@ -1,10 +1,12 @@
 #ifndef BASE_CHARACTER_H
 #define BASE_CHARACTER_H
+
 #include "raylib.h"
 
 class BaseCharacter {
 	public:
-		BaseCharacter();
+		BaseCharacter(Texture2D idleTexture, Texture2D runTexture, int frames, Vector2 position);
+		BaseCharacter(Texture2D idleTexture, Texture2D runTexture, int frames, int windowWidth, int windowHeight);
 		void setScale(float val);
 		void setSpeed(float val);
 		Vector2 getMovement();
@@ -13,6 +15,7 @@ class BaseCharacter {
 		Rectangle getCollisionRec();
 		void unload();
 	protected:
+		Vector2 position{};
 		Texture2D idle;
 		Texture2D run;
 		Texture2D texture;
@@ -25,12 +28,18 @@ class BaseCharacter {
 		float runningTime{};
 		float scale{4.f};
 		float speed{4.f};
+		float textureWidth{};
+		float textureHeight{};
 
-		void setSource(int frames);
-		virtual void setDestination(int windowWidth, int windowHeight);
+		void calcTextureDimens();
+		virtual Vector2 calcPosition(int windowWidth, int windowHeight);
+		void setPosition(Vector2 pos);
+		void setSource();
+		void setDestination();
 		void setDirection(float leftRight);
 		virtual void move();
 		void animate(float dT, float updateTime);
 		void draw();
 };
+
 #endif

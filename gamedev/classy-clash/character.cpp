@@ -1,26 +1,17 @@
 #include "character.h"
+#include "raylib.h"
 #include "raymath.h"
 
 
 /* public methods */
 
-Character::Character(Texture2D idleTexture, Texture2D runTexture, int frames, int windowWidth, int windowHeight) {
-	idle = idleTexture;
-	run = runTexture;
-	texture = idle;
-
-	setSource(frames);
-	setDestination(windowWidth, windowHeight);
+Character::Character(Texture2D idleTexture, Texture2D runTexture, int frames, int windowWidth, int windowHeight):
+	BaseCharacter::BaseCharacter(idleTexture, runTexture, frames, windowWidth, windowHeight)
+{
 }
 
 
 /* protected methods */
-
-void Character::setDestination(int windowWidth, int windowHeight) {
-	BaseCharacter::setDestination(windowWidth, windowHeight);
-	destination.x = windowWidth/2.0f - scale * (0.5f * source.width);
-	destination.y = windowHeight/2.0f - scale * (0.5f * source.height);
-}
 
 void Character::move() {
 	BaseCharacter::move();
