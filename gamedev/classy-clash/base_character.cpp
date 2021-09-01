@@ -42,6 +42,13 @@ Vector2 BaseCharacter::getMovement() {
 	return movement;
 }
 
+Vector2 BaseCharacter::getScreenPos() {
+	return Vector2{
+		destination.x,
+		destination.y
+	};
+}
+
 void BaseCharacter::tick(float dT, float updateTime) {
 	move();
 	animate(dT, updateTime);

@@ -46,7 +46,7 @@ int main() {
 		LoadTexture("characters/goblin_idle_spritesheet.png"),
 		LoadTexture("characters/goblin_run_spritesheet.png"),
 		6,
-		Vector2{}
+		Vector2{600.f, 600.f}
 	};
 	// set 'knight' as goblin's target
 	goblin.setTarget(&knight);

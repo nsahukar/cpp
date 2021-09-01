@@ -10,6 +10,7 @@ class BaseCharacter {
 		void setScale(float val);
 		void setSpeed(float val);
 		Vector2 getMovement();
+		Vector2 getScreenPos();
 		void tick(float dT, float updateTime);
 		void undoMovement();
 		Rectangle getCollisionRec();
