@@ -13,7 +13,7 @@ BaseCharacter::BaseCharacter(Texture2D idleTexture, Texture2D runTexture, int fr
 	texture = idle;
 	maxFrame = frames;
 	calcTextureDimens();
-	setPosition(position);
+	setPos(position);
 	setSource();
 	setDestination();
 }
@@ -25,7 +25,7 @@ BaseCharacter::BaseCharacter(Texture2D idleTexture, Texture2D runTexture, int fr
 	texture = idle;
 	maxFrame = frames;
 	calcTextureDimens();
-	setPosition(calcPosition(windowWidth, windowHeight));
+	setPos(calcPosition(windowWidth, windowHeight));
 	setSource();
 	setDestination();
 }
@@ -38,8 +38,8 @@ void BaseCharacter::setSpeed(float val) {
 	speed = val;
 }
 
-Vector2 BaseCharacter::getMovement() {
-	return movement;
+Vector2 BaseCharacter::getPos() {
+	return position;
 }
 
 Vector2 BaseCharacter::getScreenPos() {
@@ -56,7 +56,7 @@ void BaseCharacter::tick(float dT, float updateTime) {
 }
 
 void BaseCharacter::undoMovement() {
-	movement = lastMovement;
+	position = lastPosition;
 }
 
 Rectangle BaseCharacter::getCollisionRec() {
@@ -89,8 +89,13 @@ Vector2 BaseCharacter::calcPosition(int windowWidth, int windowHeight) {
 	};
 }
 
-void BaseCharacter::setPosition(Vector2 pos) {
+void BaseCharacter::setPos(Vector2 pos) {
 	position = pos;
+}
+
+void BaseCharacter::setScreenPos(Vector2 pos) {
+	destination.x = pos.x;
+	destination.y = pos.y;
 }
 
 void BaseCharacter::setSource() {
@@ -101,8 +106,7 @@ void BaseCharacter::setSource() {
 void BaseCharacter::setDestination() {
 	destination.width = scale * textureWidth;
 	destination.height = scale * textureHeight;
-	destination.x = position.x;
-	destination.y = position.y;
+	setScreenPos(position);
 }
 
 void BaseCharacter::setDirection(float leftRight) {
@@ -111,7 +115,28 @@ void BaseCharacter::setDirection(float leftRight) {
 
 void BaseCharacter::move() {
 	// save last movement
-	lastMovement = movement;
+	lastPosition = position;
+
+	// configuring vars based on character's direction and speed
+	if (Vector2Length(velocity) != 0.f) {
+		// moving character
+		position = Vector2Add(position, Vector2Scale(Vector2Normalize(velocity), speed));
+		// change kight's face direction based on direction
+		// +1 -> right
+		// -1 -> left
+		if (velocity.x < 0.f) {
+			setDirection(-1.f);
+		} else {
+			setDirection(1.f);
+		}
+		// set knight to run
+		texture = run;
+	} else {
+		// set knight to idle
+		texture = idle;
+	}
+	// reset velocity (for next frame)
+	velocity = {};
 }
 
 void BaseCharacter::animate(float dT, float updateTime) {

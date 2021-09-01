@@ -62,21 +62,21 @@ int main() {
 		ClearBackground(WHITE);
 
 		// draw map
-		mapPos = Vector2Scale(knight.getMovement(), -1.f);
+		mapPos = Vector2Scale(knight.getPos(), -1.f);
 		DrawTextureEx(map, mapPos, 0.0f, mapScale, WHITE);
 
 		// draw props
-		for (auto prop : props) prop.render(knight.getMovement());
+		for (auto prop : props) prop.render(knight.getPos());
 
 		// make the knight tick
 		knight.tick(dT, 1.f/12.f);
 
 		// check for movement off limits (map bounds)
 		// undoing knight movement, if so.
-		if (knight.getMovement().x < 0.f ||
-			knight.getMovement().y < 0.f ||
-			knight.getMovement().x + windowWidth > mapScale * map.width ||
-			knight.getMovement().y + windowHeight > mapScale * map.height)
+		if (knight.getPos().x < 0.f ||
+			knight.getPos().y < 0.f ||
+			knight.getPos().x + windowWidth > mapScale * map.width ||
+			knight.getPos().y + windowHeight > mapScale * map.height)
 		{
 			knight.undoMovement();
 		}
@@ -84,7 +84,7 @@ int main() {
 		// check for collision with props
 		// undoing knight movement, if so.
 		for (auto prop : props) {
-			if (CheckCollisionRecs(knight.getCollisionRec(), prop.getCollisionRec(knight.getMovement()))) {
+			if (CheckCollisionRecs(knight.getCollisionRec(), prop.getCollisionRec(knight.getPos()))) {
 				knight.undoMovement();
 			}
 		}

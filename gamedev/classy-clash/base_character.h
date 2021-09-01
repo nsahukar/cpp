@@ -9,21 +9,21 @@ class BaseCharacter {
 		BaseCharacter(Texture2D idleTexture, Texture2D runTexture, int frames, int windowWidth, int windowHeight);
 		void setScale(float val);
 		void setSpeed(float val);
-		Vector2 getMovement();
+		Vector2 getPos();
 		Vector2 getScreenPos();
 		void tick(float dT, float updateTime);
 		void undoMovement();
 		Rectangle getCollisionRec();
 		void unload();
 	protected:
-		Vector2 position{};
 		Texture2D idle;
 		Texture2D run;
 		Texture2D texture;
+		Vector2 position{};
 		Rectangle source{};
 		Rectangle destination{};
-		Vector2 movement{};
-		Vector2 lastMovement{};
+		Vector2 velocity{};
+		Vector2 lastPosition{};
 		int frame{};
 		int maxFrame{};
 		float runningTime{};
@@ -34,7 +34,8 @@ class BaseCharacter {
 
 		void calcTextureDimens();
 		virtual Vector2 calcPosition(int windowWidth, int windowHeight);
-		void setPosition(Vector2 pos);
+		void setPos(Vector2 pos);
+		void setScreenPos(Vector2 pos);
 		void setSource();
 		void setDestination();
 		void setDirection(float leftRight);
