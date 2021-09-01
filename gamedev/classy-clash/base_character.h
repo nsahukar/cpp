@@ -11,10 +11,12 @@ class BaseCharacter {
 		void setSpeed(float val);
 		Vector2 getPos();
 		Vector2 getScreenPos();
-		void tick(float dT, float updateTime);
+		virtual void tick(float dT, float updateTime);
 		void undoMovement();
 		Rectangle getCollisionRec();
-		void unload();
+		void setAlive(bool val);
+		bool isAlive();
+		virtual void unload();
 	protected:
 		Texture2D idle;
 		Texture2D run;
@@ -29,19 +31,19 @@ class BaseCharacter {
 		float runningTime{};
 		float scale{4.f};
 		float speed{4.f};
-		float textureWidth{};
-		float textureHeight{};
 
-		void calcTextureDimens();
 		virtual Vector2 calcPosition(int windowWidth, int windowHeight);
-		void setPos(Vector2 pos);
-		void setScreenPos(Vector2 pos);
+		virtual void setPos(Vector2 pos);
+		virtual void setScreenPos(Vector2 pos);
 		void setSource();
 		void setDestination();
-		void setDirection(float leftRight);
+		virtual void setDirection(float leftRight);
 		virtual void move();
-		void animate(float dT, float updateTime);
-		void draw();
+		virtual void animate(float dT, float updateTime);
+		virtual void draw();
+	private:
+		float leftRight{1.f};
+		bool alive{true};
 };
 
 #endif

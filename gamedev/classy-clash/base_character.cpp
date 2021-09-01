@@ -12,7 +12,6 @@ BaseCharacter::BaseCharacter(Texture2D idleTexture, Texture2D runTexture, int fr
 {
 	texture = idle;
 	maxFrame = frames;
-	calcTextureDimens();
 	setPos(position);
 	setSource();
 	setDestination();
@@ -24,7 +23,6 @@ BaseCharacter::BaseCharacter(Texture2D idleTexture, Texture2D runTexture, int fr
 {
 	texture = idle;
 	maxFrame = frames;
-	calcTextureDimens();
 	setPos(calcPosition(windowWidth, windowHeight));
 	setSource();
 	setDestination();
@@ -50,9 +48,11 @@ Vector2 BaseCharacter::getScreenPos() {
 }
 
 void BaseCharacter::tick(float dT, float updateTime) {
-	move();
-	animate(dT, updateTime);
-	draw();
+	if (isAlive()) {
+		move();
+		animate(dT, updateTime);
+		draw();
+	}
 }
 
 void BaseCharacter::undoMovement() {
@@ -68,6 +68,14 @@ Rectangle BaseCharacter::getCollisionRec() {
 	};
 }
 
+void BaseCharacter::setAlive(bool val) {
+	alive = val;
+}
+
+bool BaseCharacter::isAlive() {
+	return alive;
+}
+
 void BaseCharacter::unload() {
 	UnloadTexture(idle);
 	UnloadTexture(run);
@@ -77,15 +85,12 @@ void BaseCharacter::unload() {
 
 /* protected methods */
 
-void BaseCharacter::calcTextureDimens() {
-	textureWidth = static_cast<float>(texture.width) / static_cast<float>(maxFrame);
-	textureHeight = static_cast<float>(texture.height);
-}
-
 Vector2 BaseCharacter::calcPosition(int windowWidth, int windowHeight) {
+	float width = static_cast<float>(texture.width) / static_cast<float>(maxFrame);
+	float height = static_cast<float>(texture.height);
 	return Vector2{
-		windowWidth/2.0f - scale * (0.5f * textureWidth),
-		windowHeight/2.0f - scale * (0.5f * textureHeight)
+		windowWidth/2.0f - scale * (0.5f * width),
+		windowHeight/2.0f - scale * (0.5f * height)
 	};
 }
 
@@ -99,13 +104,17 @@ void BaseCharacter::setScreenPos(Vector2 pos) {
 }
 
 void BaseCharacter::setSource() {
-	source.width = textureWidth;
-	source.height = textureHeight;
+	float width = static_cast<float>(texture.width) / static_cast<float>(maxFrame);
+	float height = static_cast<float>(texture.height);
+	source.width = width;
+	source.height = height;
 }
 
 void BaseCharacter::setDestination() {
-	destination.width = scale * textureWidth;
-	destination.height = scale * textureHeight;
+	float width = static_cast<float>(texture.width) / static_cast<float>(maxFrame);
+	float height = static_cast<float>(texture.height);
+	destination.width = scale * width;
+	destination.height = scale * height;
 	setScreenPos(position);
 }
 
@@ -124,17 +133,16 @@ void BaseCharacter::move() {
 		// change kight's face direction based on direction
 		// +1 -> right
 		// -1 -> left
-		if (velocity.x < 0.f) {
-			setDirection(-1.f);
-		} else {
-			setDirection(1.f);
-		}
+		// set leftRight
+		velocity.x < 0.f ? leftRight = -1.f : leftRight = 1.f;
 		// set knight to run
 		texture = run;
 	} else {
 		// set knight to idle
 		texture = idle;
 	}
+	// set character direction based on leftRight
+	setDirection(leftRight);
 	// reset velocity (for next frame)
 	velocity = {};
 }

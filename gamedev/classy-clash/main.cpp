@@ -3,6 +3,7 @@
 #include "prop.h"
 #include "character.h"
 #include "enemy.h"
+#include <string>
 
 
 int main() {
@@ -37,6 +38,7 @@ int main() {
 		LoadTexture("characters/knight_idle_spritesheet.png"),
 		LoadTexture("characters/knight_run_spritesheet.png"),
 		6,
+		LoadTexture("characters/weapon_sword.png"),
 		windowWidth,
 		windowHeight
 	};
@@ -46,10 +48,23 @@ int main() {
 		LoadTexture("characters/goblin_idle_spritesheet.png"),
 		LoadTexture("characters/goblin_run_spritesheet.png"),
 		6,
-		Vector2{600.f, 600.f}
+		Vector2{600.f, 600.f},
+		3.f
 	};
-	// set 'knight' as goblin's target
-	goblin.setTarget(&knight);
+	// defining enemy 'slime' texture
+	Enemy slime{
+		LoadTexture("characters/slime_idle_spritesheet.png"),
+		LoadTexture("characters/slime_run_spritesheet.png"),
+		6,
+		Vector2{800.f, 200.f},
+		2.f
+	};
+	Enemy* enemies[]{
+		&goblin,
+		&slime
+	};
+	// set 'knight' as enemy's target
+	for (auto enemy: enemies) enemy->setTarget(&knight);
 
 
 	SetTargetFPS(60);
@@ -68,6 +83,21 @@ int main() {
 		// draw props
 		for (auto prop : props) prop.render(knight.getPos());
 
+		// check if knight is alive
+		// show knight's health, if alive
+		// show GAME OVER!, if dead
+		if (knight.isAlive()) {
+			// show 'health' text
+			std::string knightsHealth = "Health: ";
+			knightsHealth.append(std::to_string(knight.getHealth()), 0, 5);
+			DrawText(knightsHealth.c_str(), 85.f, 30.f, 40, RED);
+		} else {
+			// show 'GAME OVER!' text
+			DrawText("Game Over!", 85.f, windowHeight/2, 40, RED);
+			EndDrawing();
+			continue;
+		}
+
 		// make the knight tick
 		knight.tick(dT, 1.f/12.f);
 
@@ -81,7 +111,7 @@ int main() {
 			knight.undoMovement();
 		}
 
-		// check for collision with props
+		// check for knight's collision with props
 		// undoing knight movement, if so.
 		for (auto prop : props) {
 			if (CheckCollisionRecs(knight.getCollisionRec(), prop.getCollisionRec(knight.getPos()))) {
@@ -89,8 +119,20 @@ int main() {
 			}
 		}
 
-		// make the goblin tick
-		goblin.tick(dT, 1.f/12.f);
+		for (auto enemy: enemies) {
+			// make the goblin tick
+			enemy->tick(dT, 1.f/12.f);
+		}
+
+		// check for knight's sword collision with enemies
+		// make enemy dead, if so.
+		if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+			for (auto enemy: enemies) {
+				if (CheckCollisionRecs(enemy->getCollisionRec(), knight.getWeaponCollisionRec())) {
+					enemy->setAlive(false);
+				}
+			}
+		}
 
 		// end drawing
 		EndDrawing();
